@@ -1,17 +1,10 @@
 <?php
 
-$name = 'lagerverwaltung1';
-$user = 'davidg';
-$host = 'db4free.net';
-$password = '41111e0a';
-
-$install = array();
-
 class db {
-    private static $name = 'lagerverwaltung1';
-    private static $user = 'davidg';
+    private static $name = 'dg_lager';
+    private static $user = 'wolledave';
     private static $host = 'db4free.net';
-    private static $password = '41111e0a';
+    private static $password = 'developer01';
     private static $db;
 
     public static function db() {
