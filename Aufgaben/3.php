@@ -1,10 +1,9 @@
 <?php
 
-// Ablaufsdatum berechnen - Ablaufs datum ist immer am letzten Monatstag nach 12 Monaten, bitte berechnen
+// Ablaufdatum berechnen - Ablaufdatum ist immer am letzten Monatstag nach 12 Monaten, bitte berechnen
 
 function antwort($data) {
-    $antwort = false;
-    // Hier schreibst Du Deine Lösung
+    $antwort = date('d.m.Y', strtotime('last day of +1 year +1 month', strtotime($data)));
 
     return $antwort;
 }
