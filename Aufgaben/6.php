@@ -3,10 +3,7 @@
 // Prüfung ob ein Wert TRUE ist
 
 function antwort($data) {
-    $antwort = false;
-    // Hier schreibst Du Deine Lösung
-
-    return $antwort;
+    return $data === true;
 }
 
 
