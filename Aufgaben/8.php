@@ -3,8 +3,12 @@
 
 function antwort($data)
 {
-    $antwort = 0;
-    return $antwort;
+    $antwort = array();
+    foreach ($data as $value) {
+        if (empty($antwort[$value])) $antwort[$value] = 0;
+        $antwort[$value]++;
+    }
+    return array_search(max($antwort), $antwort);
 }
 
 
