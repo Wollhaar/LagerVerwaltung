@@ -3,9 +3,10 @@
 // Ablaufdatum berechnen - Ablaufdatum ist immer am letzten Monatstag nach 12 Monaten, bitte berechnen
 
 function antwort($data) {
-    $antwort = date('d.m.Y', strtotime('last day of +1 year +1 month', strtotime($data)));
-
-    return $antwort;
+    return date('d.m.Y', strtotime(
+        'last day of +1 year +1 month',
+            strtotime($data)
+    ));
 }
 
 
