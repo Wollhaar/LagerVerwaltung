@@ -4,6 +4,9 @@
 function antwort($data)
 {
     $antwort = 0;
+    foreach ($data as $values)
+        $antwort += $values['a'];
+
     return $antwort;
 }
 
