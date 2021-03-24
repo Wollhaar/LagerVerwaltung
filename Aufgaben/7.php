@@ -5,6 +5,9 @@
 
 function antwort($data) {
     $antwort = 0;
+    for ($i = $data[0]; $i <= $data[1]; $i++) {
+        if (!is_float($i / 2) || !is_float($i / 3)) $antwort++;
+    }
     return $antwort;
 }
 
