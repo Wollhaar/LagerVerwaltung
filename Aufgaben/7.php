@@ -5,9 +5,6 @@
 
 function antwort($data) {
     $antwort = 0;
-    for ($i = $data[0]; $i <= $data[1]; $i++) {
-        if ($i%2 == 0 || $i%3 == 0) $antwort++;
-    }
     return $antwort;
 }
 
