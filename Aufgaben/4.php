@@ -4,14 +4,11 @@
 const d_day = '2020-03-10';
 
 function antwort($data) {
-    $antwort = date('Y-m-d', strtotime('+18 years', strtotime($data)));
-    $antwort = date_diff(
-            new DateTime(d_day),
-            new DateTime($antwort)
-        )->days;
-    if ($antwort < 0) $antwort = false;
+    $data = date('Y-m-d', strtotime('+18 years', strtotime($data)));
+    $data = date_diff(new DateTime(d_day), new DateTime($data));
+    $antwort = $data->days;
 
-    return $antwort;
+    return $data->invert ? false : $antwort;
 }
 
 echo 'Test 1 ' . ($a = '01.01.2020') . ' <br> soll: 6506, ist: ' . var_export(antwort($a), true) . '<br><br>';
