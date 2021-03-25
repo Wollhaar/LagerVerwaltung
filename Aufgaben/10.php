@@ -3,8 +3,23 @@
 
 function antwort($data)
 {
-    $antwort = 0;
-    return $antwort;
+    foreach ($data as $key => $value) {
+        $value = substr(strval($value), strpos($value, 'needle: .') + 1);
+        if ($data[$key] < 0) {
+            $neg = true;
+        }
+        if (strlen($value) > 0) {
+            if (strlen($value) < 2) {
+                echo ' werte - mit null: ' .
+                    substr($value, strpos($value, 'needle: .') + 1);
+            }
+        }
+        $data[$key] = intval(substr($value, strpos($value, '.') + 1));
+
+        echo "Testwert: $data[$key] <br/>";
+    }
+
+    return array_sum($data);
 }
 
 echo 'Test 1 ' . ($a = array(1.11, 6.11)) . ' <br> soll: 22, ist: ' . var_export(antwort($a), true) . '<br><br>';
