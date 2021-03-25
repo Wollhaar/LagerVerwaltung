@@ -4,19 +4,17 @@
 function antwort($data)
 {
     foreach ($data as $key => $value) {
-        $value = substr(strval($value), strpos($value, 'needle: .') + 1);
-        if ($data[$key] < 0) {
-            $neg = true;
-        }
-        if (strlen($value) > 0) {
-            if (strlen($value) < 2) {
-                echo ' werte - mit null: ' .
-                    substr($value, strpos($value, 'needle: .') + 1);
-            }
-        }
-        $data[$key] = intval(substr($value, strpos($value, '.') + 1));
+        $neg = false;
+        $null = false;
+        if ($value < 0) $neg = true;
 
-        echo "Testwert: $data[$key] <br/>";
+        $value = substr(strval($value), strpos($value, '.') + 1);
+
+        if (strlen($value) < 2) $null = true;
+        if ($neg) $value = '-' . $value;
+        if ($null) $value .= '0';
+
+        $data[$key] = intval($value);
     }
 
     return array_sum($data);
