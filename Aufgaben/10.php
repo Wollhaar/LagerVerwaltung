@@ -5,15 +5,11 @@ function antwort($data)
 {
     foreach ($data as $key => $value) {
         $neg = false;
-        $null = false;
         if ($value < 0) $neg = true;
 
         $value = substr(strval($value), strpos($value, '.') + 1);
 
-        if (strlen($value) < 2) $null = true;
         if ($neg) $value = '-' . $value;
-        if ($null) $value .= '0';
-
         $data[$key] = intval($value);
     }
 
