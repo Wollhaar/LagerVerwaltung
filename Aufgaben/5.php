@@ -4,8 +4,12 @@
 
 function antwort($data) {
     $result = antwort1($data);
-
-    return max($result);
+    $max = null;
+    foreach ($data as $val) {
+        if (is_array($val)) $val = antwort($val);
+        if ($val > $max) $max = $val;
+    }
+    return $max;
 }
 
 function antwort1($data) {
