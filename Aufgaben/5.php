@@ -3,26 +3,12 @@
 // Der größte Wert in der Tabelle
 
 function antwort($data) {
-    $result = antwort1($data);
     $max = null;
     foreach ($data as $val) {
         if (is_array($val)) $val = antwort($val);
         if ($val > $max) $max = $val;
     }
     return $max;
-}
-
-function antwort1($data) {
-
-    $neues = array();
-    foreach ($data as $key => $value) {
-        if (is_array($value))
-            $neues = array_merge($neues, antwort1($value));
-
-        else $neues[] = $value;
-    }
-
-    return $neues;
 }
 
 
