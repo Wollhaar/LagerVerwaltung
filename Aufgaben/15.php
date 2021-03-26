@@ -12,6 +12,7 @@
 //dann muss wieder: md5(0102595401dfd0bc124734faabc9fc9b) -> 0102595401dfd0bc124734faabc9fc9b -> Summe: 0+1+0+2+5+9+5+4+0+1+0+1+2+4+7+3+4+9+9 = 66
 //dann muss wieder: md5(f5219c6bc40923586e651b4cf399d424) -> f5219c6bc40923586e651b4cf399d424 -> Summe: 5+2+1+9+6+4+0+9+2+3+5+8+6+6+5+1+4+3+9+9+4+2+4 = 107
 //dann muss wieder: md5(3995982ecc1645a79077cfd588947789) -> 3995982ecc1645a79077cfd588947789 -> Summe: 3+9+9+5+9+8+2+1+6+4+5+7+9+0+7+7+5+8+8+9+4+7+7+8+9 = 156
+// dann ist 3995982ecc1645a79077cfd588947789 Antwort die wir gesucht haben.
 
 
 
