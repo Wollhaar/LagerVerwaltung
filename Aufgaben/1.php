@@ -7,7 +7,7 @@ function antwort($data) {
     $antwort = false;
     $data = preg_replace('/([^A-Za-z].)*/', '', $data);
     if (!is_float(strlen($data) / 2)) $antwort = true;
-
+    return strlen($data)%2; // kann man auch so, als kurze Lösung schreiben.
     return $antwort;
 }
 

@@ -16,3 +16,4 @@ echo 'Test 1 ' . ($a = array(1,6)) . ' <br> soll: 4, ist: ' . var_export(antwort
 echo 'Test 2 ' . ($a = array(0,30)) . ' <br> soll: 21, ist: ' . var_export(antwort($a), true) . '<br><br>';
 echo 'Test 3 ' . ($a = array(-20,20)) . ' <br> soll: 27, ist: ' . var_export(antwort($a), true) . '<br><br>';
 echo 'Test 4 ' . ($a = array(-100000000,100000000)) . ' <br> soll: 133333335, ist: ' . var_export(antwort($a), true) . '<br><br>';
+
