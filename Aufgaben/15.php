@@ -14,8 +14,6 @@
 //dann muss wieder: md5(f5219c6bc40923586e651b4cf399d424) -> 3995982ecc1645a79077cfd588947789 -> Summe: 3+9+9+5+9+8+2+1+6+4+5+7+9+0+7+7+5+8+8+9+4+7+7+8+9 = 156
 // dann ist 3995982ecc1645a79077cfd588947789 Antwort die wir gesucht haben.
 
-
-
 function antwort($data) {
     return $data;
 }
