@@ -1,2 +1,8 @@
 #general
 .idea/
+
+#directories
+storage/
+
+#files
+*.json
