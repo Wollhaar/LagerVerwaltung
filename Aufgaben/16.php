@@ -3,10 +3,21 @@
 
 function antwort($data)
 {
-    while ($data) {
-
+    $unsorted = true;
+    while ($unsorted && ($data)) {
+        $i = 0;
+        foreach ($data as $key => $value) {
+            $value = $data[$key];
+            if (key_exists($key + 1, $data) && $value > $data[$key + 1]) {
+                array_push($data, $value);
+                unset($data[$key]);
+                $i++;
+            }
+        }
+        if ($i === 0) $unsorted = false;
+        $data = array_values($data);
     }
-    return '';
+    return $data;
 }
 
 
