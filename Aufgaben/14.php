@@ -4,7 +4,15 @@
 const start = '26.03.2021 09:00:00';
 
 function antwort($data) {
-    return 0;
+    $d1 = new DateTime(start);
+    $d2 = new DateTime($data);
+    $diff = date_diff($d1, $d2);
+    print_r($diff);
+    $min = 0;
+    $min += ($diff->days * 24 * 60);
+    $min += $diff->h * 60;
+    $min += $diff->i;
+    return $min;
 }
 
 echo 'Test 1 ' . ($stop = '26.03.2021 09:10:00') . ' <br> soll: 10, ist: ' . var_export(antwort($stop), true) . '<br><br>';
