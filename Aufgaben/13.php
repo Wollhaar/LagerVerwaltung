@@ -5,19 +5,16 @@ function antwort()
 {
     $path = $_SERVER['DOCUMENT_ROOT'] . '/storage/';
 
-    $antwort = array('a' => 0, 'b' => 0, 'c' => 0);
+    $antwort = array();
     foreach (scandir($path) as $filename) {
         if (!str_contains($filename, 'data')) continue;
         if (file_exists($path . $filename)) {
             $content = json_decode(file_get_contents($path . $filename), 'true');
-            echo '<h3>Content - values</h3><pre>';
-            print_r($content);
-            echo '</pre>';
+            $arr = array();
             foreach ($content as $values) {
-                $antwort['a'] += $values['a'];
-                $antwort['b'] += $values['b'];
-                $antwort['c'] += $values['c'];
+                array_push($arr, array_sum($values));
             }
+            array_push($antwort, array_sum($arr));
         }
     }
 
