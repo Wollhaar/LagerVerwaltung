@@ -15,7 +15,10 @@
 // dann ist 3995982ecc1645a79077cfd588947789 Antwort die wir gesucht haben.
 
 function antwort($data) {
-    return $data;
+    $hash = md5($data);
+    $algo = array_sum(str_split(preg_replace('/[^0-9]/', '', $hash)));
+    if ($algo < 150) $hash = antwort($hash);
+    return $hash;
 }
 
 echo 'Test 0 ' . ($a = 'David') . ' <br> soll: 3995982ecc1645a79077cfd588947789, ist: ' . var_export(antwort($a), true) . '<br><br>';
