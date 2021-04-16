@@ -2,9 +2,9 @@
 
 class db {
     private static $name = 'dg_lager';
-    private static $user = 'wolledave';
-    private static $host = 'db4free.net';
-    private static $password = 'developer01';
+    private static $user = 'db97098_57';
+    private static $host = 'mysql5.gute-it.de';
+    private static $password = '4f?KvdevjmKb';
     private static $db;
 
     public static function db() {
