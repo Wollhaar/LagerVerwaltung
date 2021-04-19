@@ -4,27 +4,37 @@
     <meta charset="UTF-8">
     <title>Lagerverwaltung</title>
 
-    <link type="text/css" href="pub/css/main.css"/>
+    <!-- CSS - libraries  -->
+    <link rel="stylesheet" type="text/css" href="pub/lib/bootstrap-5.0.0-beta3-dist/css/bootstrap.min.css" />
+    <!-- CSS - implements  -->
+    <link rel="stylesheet" type="text/css" href="pub/css/less/styles.css" />
+
+    <!-- JavaScript - libraries  -->
+    <script src="pub/lib/jQuery/jquery-3.6.0.min.js" ></script>
+    <script src="pub/lib/bootstrap-5.0.0-beta3-dist/js/bootstrap.min.js.map"></script>
+    <!-- JavaScript - implements  -->
 </head>
 <body>
 <header>
-    <a href="/{default}"><h1>Lagerverwaltung</h1></a>
+    <a href="/{default}" id="header-link"><h1>Lagerverwaltung</h1></a>
     <ul id="header_menu">
         <li><a href="/login">Login</a></li>
     </ul>
 </header>
 <aside>
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+    <div id="side-menu">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
         Launch demo modal
-    </button>
-    <button type="button" class="btn btn-primary">
-        Test Button
-    </button>
-    <button type="button" class="btn btn-primary">
-        Test Button
-    </button>
+        </button>
+        <button type="button" class="btn btn-primary">
+            Test Button
+        </button>
+        <button type="button" class="btn btn-primary">
+            Test Button
+        </button>
+    </div>
 </aside>
-<div id="body"></div>
+<div id="body" class="container col-12"></div>
 
 <script type="text/javascript" src="pub/js/main.js"></script>
 <footer>

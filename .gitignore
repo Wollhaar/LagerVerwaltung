@@ -3,6 +3,11 @@
 
 #directories
 storage/
+page/pub/lib/
 
 #files
 *.json
+
+#generated css files
+*.css
+*.css.map
