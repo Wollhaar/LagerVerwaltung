@@ -55,12 +55,19 @@ header {
 
 aside {
   width: 200px;
+  margin: 20px 10px;
+  float: left;
 
   #side-menu {
     padding: 10px 20px;
+    background-color: #c8ccbe;
+
     button {
       display: block;
       margin: 10px 0;
+      background-color: #efe2e4;
+      border-color: #efe2e4;
+      color: #2c2128;
     }
   }
 }
@@ -70,4 +77,30 @@ aside {
   width: 600px;
 
   background-color: @2nd_theme;
+}
+
+footer {
+  padding: 10px 2px;
+  //position: fixed;
+  //bottom: 0;
+
+  background-color: #ffcd39;
+  text-align: right;
+}
+
+.table-default {
+  display: none;
+
+  .table-header {
+  }
+}
+.modal {
+  .modal-header {
+    button {
+      background-color: transparent;
+      color: black;
+
+      display: inline-flex;
+    }
+  }
 }

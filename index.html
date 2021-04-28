@@ -24,13 +24,19 @@
 <aside>
     <div id="side-menu">
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-        Launch demo modal
+            modal
         </button>
         <button type="button" class="btn btn-primary">
-            Test Button
+            Lieferanten
         </button>
         <button type="button" class="btn btn-primary">
-            Test Button
+            Artikel
+        </button>
+        <button type="button" class="btn btn-primary">
+            Lager
+        </button>
+        <button type="button" class="btn btn-primary">
+            Transaktion
         </button>
     </div>
 </aside>
@@ -40,7 +46,14 @@
 <footer>
     Impressum AGB Datenschutz
 </footer>
-</body>
+
+<div class="table-default">
+    <h5 class="table-header"></h5>
+    <table>
+        <thead><th>Name</th><th>Adresse</th><th>Datum</th><th>Absender</th><th>Empfänger</th><th>Aktion</th></thead>
+        <tbody class="table-results"></tbody>
+    </table>
+</div>
 
 <!-- modal - copy of https://getbootstrap.com/docs/4.0/components/modal/ -->
 <div class="modal" id="exampleModal" tabindex="-1" role="dialog">
@@ -62,4 +75,5 @@
         </div>
     </div>
 </div>
+</body>
 </html>
