@@ -1,8 +1,41 @@
-global_data = null;
-default_page = 'home';
+let global_data = null;
+let default_page = 'home';
 
 function init() {
+    global_data = {user: {authenticated: true, first_name: 'David', last_name: 'Goraj'}}; // Test
+
     default_link();
+    // check_session();
+    check_user();
+}
+
+function check_session()
+{
+    const request = new Request('session', 'get', 'check', {});
+    request.send();
+    global_data = request.get();
+}
+
+function check_user()
+{
+    let user = global_data.user;
+    if (user.authenticated) {
+        user_settings(user);
+    }
+}
+
+function user_settings(user)
+{
+    let user_element = $("#user-field");
+    $(user_element).text(user.first_name + ' ' + user.last_name);
+    $(user_element).removeClass('d-none');
+
+    let login = $("#login-link");
+    $(login).text('Logout');
+    $(login).attr('href', '/logout');
+
+    let side_menu = $("#side-menu");
+    $(side_menu).removeClass('d-none')
 }
 
 function create(name) {
@@ -37,7 +70,7 @@ function build_button(value) {
     $(btn).text(value);
     $(btn).attr('type', 'button');
     $(btn).attr('onclick', 'open_record(' +
-        '$(this).closest("tr").children("input[type=hidden]"), ' +
+        '$(this).closest("tr").find("input[type=hidden]"), ' +
         '$(this).closest("table").find("th"), ' +
         '$(this).closest(".table-results").find("input[name=table]")' +
         ')');
@@ -46,13 +79,13 @@ function build_button(value) {
     return btn;
 }
 
-function put_into_table(header, content) {
+function put_into_table(attr, content) {
     let table = $(".table-default").clone();
-    let class_name = 'table-' + header;
+    let class_name = 'table-' + attr.value;
 
     $(table).removeClass("table-default");
     $(table).addClass(class_name);
-    $(table).find(".table-header").text(header);
+    $(table).find(".table-header").text(attr.header);
 
     for (let record of Object.values(content)) {
         let row = create('tr');
@@ -74,47 +107,38 @@ function put_into_table(header, content) {
         }
         $(table).find(".table-results").append(row);
     }
-    $(table).find(".table-results").append(build_input('table', header, 'hidden'));
+    $(table).find(".table-results").append(build_input('table', attr.value, 'hidden'));
 
     $("#body").html(table);
     $(table).show();
 }
 
 function open_record(data, label, table) {
-    let fields = build_fields(data).mergeElements(build_labels(getText(label), data));
-    let name = table[0].value;
+    let fields = build_fields(data, 'text').mergeElements(
+            build_labels(
+                getData(label, 'innerText'),
+                getData(data, 'name')
+            )
+        );
+    fields.mergeElements(build_fields(data, 'hidden'), 1);
 
+    let name = table[0].value;
     fields = fields.build('div');
-    fields.push(table);
-    console.log(fields);
+    fields.push(table.clone());
     modal('Bearbeite ' + name, fields);
 }
 
-function getData(data)
+function getData(data, what)
 {
     return $(data).map(function() {
-        return this.value;
+        return this[what];
     }).get();
 }
 
-function getAttr(data)
+function build_fields(data, type)
 {
     return $(data).map(function() {
-        return this.name;
-    }).get();
-}
-
-function getText(data)
-{
-    return $(data).map(function() {
-        return this.innerText;
-    }).get();
-}
-
-function build_fields(data)
-{
-    return $(data).map(function() {
-        return build_input(this.name, this.value, 'text', 'form-control');
+        return build_input(this.name, this.value, type, 'form-control');
     }).get();
 }
 
@@ -133,24 +157,41 @@ function modal(header, content) {
 
     $("body").append(modal);
     $(modal).show();
+
+    $(".modal button[class$=close]").click(function() {
+        $(this).closest(".modal").remove();
+    });
 }
 
 $(document).ready(function() {
     init();
 
+    $('#data-table').DataTable( {
+        data: {},
+        columns: [
+            {
+                title: "Name",
+                data: "name",
+            },
+            { title: "Adresse",data: "name", },
+            { title: "Datum", data: "date", },
+            { title: "Absender", data: "sender", },
+            { title: "Empfänger", data: "receiver", },
+            { title: "Aktion", data: "action", }
+        ]
+    } );
     $("#side-menu button").click(function() {
-        let topic = $(this).text();
-        // $("#body").html('');
-        put_into_table(topic, {0:{name:'chuck tester', adress: 'Kuster-Straße 11', date: '03.11.20', sender: 'Kühne+Nagel', receiver: 'IBM', action: 'Öffnen'}, 1:{name: 'max tester', adress: 'Muster-Allee 14', date: '12.10.16', sender: 'Detlef Louis', receiver: 'BIM', action: 'Öffnen'}});
+
+        let dataSet = [{name:'chuck tester', adress: 'Kuster-Straße 11', date: '03.11.20', sender: 'Kühne+Nagel', receiver: 'IBM', action: 'Öffnen'}, {name: 'max tester', adress: 'Muster-Allee 14', date: '12.10.16', sender: 'Detlef Louis', receiver: 'BIM', action: 'Öffnen'}];
+        let topic = Object;
+        topic.header = $(this).text();
+        topic.value = $(this).val();
+        // put_into_table(topic, {0:{name:'chuck tester', adress: 'Kuster-Straße 11', date: '03.11.20', sender: 'Kühne+Nagel', receiver: 'IBM', action: 'Öffnen'}, 1:{name: 'max tester', adress: 'Muster-Allee 14', date: '12.10.16', sender: 'Detlef Louis', receiver: 'BIM', action: 'Öffnen'}});
+
+
     });
 
-    $("button[data-toggle=modal]").click(function() {
-        modal('Test', 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu.');
-    });
-
-    $(".modal button:contains(Schließen)").click(function() {
-        $(this).closest(".modal").remove();
-    });
+    $("");
 });
 
 
@@ -164,20 +205,35 @@ Array.prototype.build = function(what)
     let built = [];
 
     Object.keys(this).forEach(function(key) {
-        let div = create(what);
-        div.append(array[key++])
-        div.append(array[key])
-        built.push(div);
+        if (key % 3) return;
+        let element = create(what);
+
+        element.append(array[key++]);
+        element.append(array[key++]);
+        element.append(array[key]);
+        built.push(element);
     });
     return built;
 }
-Array.prototype.mergeElements = function(array)
+Array.prototype.mergeElements = function(array, level = 0)
 {
     let i = 0;
     let arr = this;
     Object.keys(array).forEach(function(key) {
         arr.splice(i, 0, array[key]);
-        i+=2;
+        i+=2 + level;
     });
     return this;
 }
+
+
+// jQuery - script
+
+// src: https://stackoverflow.com/questions/67346415/jquery-don%C2%B4t-accept-property-cause-given-string-and-not-object/67346454#answer-67346574
+!(($) => {
+    $.fn.getArr = function(what) {
+        return this.map(function() {
+            return $(this)[what]()
+        }).get();
+    }
+})(jQuery)

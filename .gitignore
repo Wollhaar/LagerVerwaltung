@@ -3,7 +3,7 @@
 
 #directories
 storage/
-page/pub/lib/
+pub/lib/
 
 #files
 *.json

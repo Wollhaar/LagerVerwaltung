@@ -6,69 +6,73 @@
 
     <!-- CSS - libraries  -->
     <link rel="stylesheet" type="text/css" href="pub/lib/bootstrap-5.0.0-beta3-dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="pub/lib/DataTables/datatables.min.css" />
     <!-- CSS - implements  -->
     <link rel="stylesheet" type="text/css" href="pub/css/less/styles.css" />
 
     <!-- JavaScript - libraries  -->
     <script src="pub/lib/jQuery/jquery-3.6.0.min.js" ></script>
     <script src="pub/lib/bootstrap-5.0.0-beta3-dist/js/bootstrap.min.js.map"></script>
+    <script src="pub/lib/DataTables/datatables.min.js" ></script>
     <!-- JavaScript - implements  -->
 </head>
 <body>
 <header>
-    <a href="/{default}" id="header-link"><h1>Lagerverwaltung</h1></a>
+    <a href="/{default}" id="header-link" class="page-style"><h1>Lagerverwaltung</h1></a>
     <ul id="header_menu">
-        <li><a href="/login">Login</a></li>
+        <li><a id="user-field" class="page-style" href="#"></a></li>
+        <li><a id="login-link" class="page-style" href="/login">Login</a></li>
     </ul>
 </header>
 <aside>
-    <div id="side-menu">
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-            modal
-        </button>
-        <button type="button" class="btn btn-primary">
-            Lieferanten
-        </button>
-        <button type="button" class="btn btn-primary">
-            Artikel
-        </button>
-        <button type="button" class="btn btn-primary">
-            Lager
-        </button>
-        <button type="button" class="btn btn-primary">
-            Transaktion
-        </button>
+    <div id="side-menu" class="d-none">
+        <div class="main-buttons">
+            <button type="button" class="btn btn-primary" value="lieferanten">
+                Lieferanten
+            </button>
+            <button type="button" class="btn btn-primary" value="artikel">
+                Artikel
+            </button>
+            <button type="button" class="btn btn-primary" value="lager">
+                Lager
+            </button>
+            <button type="button" class="btn btn-primary" value="transaktionen">
+                Transaktionen
+            </button>
+        </div>
     </div>
 </aside>
-<div id="body" class="container col-12"></div>
+<div id="body" class="container col-12">
+    <div class="table-default">
+        <h5 class="table-header"></h5>
+        <table id="data-table" class="display" width="100%"></table>
+    </div>
+</div>
 
 <script type="text/javascript" src="pub/js/main.js"></script>
+<script type="text/javascript" src="pub/js/Request.js"></script>
+
 <footer>
     Impressum AGB Datenschutz
 </footer>
-
-<div class="table-default">
-    <h5 class="table-header"></h5>
-    <table>
-        <thead><th>Name</th><th>Adresse</th><th>Datum</th><th>Absender</th><th>Empfänger</th><th>Aktion</th></thead>
-        <tbody class="table-results"></tbody>
-    </table>
-</div>
+<!--<table>
+    <thead><th>Name</th><th>Adresse</th><th>Datum</th><th>Absender</th><th>Empfänger</th><th>Aktion</th></thead>
+    <tbody class="table-results"></tbody>
+</table>-->
 
 <!-- modal - copy of https://getbootstrap.com/docs/4.0/components/modal/ -->
-<div class="modal" id="exampleModal" tabindex="-1" role="dialog">
+<div class="modal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Modal title</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                <h5 class="modal-title"></h5>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
                 </button>
             </div>
             <div class="modal-body"></div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary">Speichern</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Schließen</button>
+                <button type="button" class="btn btn-secondary close" data-dismiss="modal">Schließen</button>
             </div>
         </div>
     </div>
