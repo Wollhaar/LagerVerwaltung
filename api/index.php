@@ -16,16 +16,15 @@ spl_autoload_extensions(
 spl_autoload_register();
 
 session::get();
-$path = array_filter(explode('/', parse_url(isset($_REQUEST['uri']) ? $_REQUEST['uri'] : '', PHP_URL_PATH)));
-if (!isset($path[0])) response::send(array("result" => "Methode fehlt"), 400);
-$class = $path[0];
-$function = $path[1];
+$path = array_filter(explode('/', parse_url(isset($_SERVER['REQUEST_URI']) ? $_SERVER['PATH_INFO'] : '', PHP_URL_PATH)));
+if (!isset($path[1])) response::send(array("result" => "Methode fehlt"), 400);
+$class = $path[1];
+$function = $path[2];
 $method = strtolower($_SERVER['REQUEST_METHOD']);
-unset($path[0]);
-unset($path[1]);
+unset($path);
 $path[] = file_get_contents('php://input', true);
-if (is_file('controller/' . $method . '/' . $class . '.php')) {
-    include 'controller/' . $method . '/' . $class . '.php';
+if (is_file('module/' . $class . '.php')) {
+    include 'module/' . $class . '.php';
     if (method_exists($class, $function)) {
         response::send($class::$function(...$path));
     } else {

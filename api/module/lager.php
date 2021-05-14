@@ -7,5 +7,7 @@ class lager
 
     public static function post_details($id, $daten) {}
 
-    public static function get_bestand($id) {}
+    public static function get_bestand($id) {
+
+    }
 }

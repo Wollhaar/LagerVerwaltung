@@ -1,6 +1,6 @@
 <?php
 
-class session{
+class session {
     public static $data = array();
     public static $doku = false;
 

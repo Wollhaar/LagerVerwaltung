@@ -1,11 +1,35 @@
 let global_data = null;
-let default_page = 'home';
+let default_page = '/';
+
+const selectors = {
+    lieferant: { header: 'Lieferanten', value: 'lieferanten' },
+    artikel: { header: 'Artikel', value: 'artikel' },
+    lager: { header: 'Lager', value: 'lager' },
+    transaktion: { header: 'Transaktionen', value: 'transaktion' },
+}
+
+const table_headers = {
+        name:       { title: "Name", data: "name", },
+        adresse:     { title: "Adresse",data: "adresse", },
+        datum:       { title: "Datum", data: "datum", },
+        typ:     { title: "Typ", data: "typ", },
+        beschreibung: { title: "Beschreibung", data: "beschreibung", },
+        preis:     { title: "Preis", data: "preis", },
+        gate:     { title: "Tor", data: "gate", },
+        sender:     { title: "Absender", data: "sender", },
+        receiver:   { title: "Empfänger", data: "receiver", },
+        anzahl:     { title: "Anzahl", data: "anzahl", },
+        action:     { title: "Aktion", data: "action", },
+        lieferant:     { title: "Lieferant", data: "lieferant", },
+    };
+
+
 
 function init() {
-    global_data = {user: {authenticated: true, first_name: 'David', last_name: 'Goraj'}}; // Test
+    // global_data = {user: {authenticated: true, first_name: 'David', last_name: 'Goraj'}}; // Test
 
     default_link();
-    // check_session();
+    check_session();
     check_user();
 }
 
@@ -16,11 +40,42 @@ function check_session()
     global_data = request.get();
 }
 
+function load_data(data, what, action)
+{
+    const request = new Request('post', action);
+    request.send(data, what);
+}
+
+function load_list(data, what)
+{
+    const request = new Request('get', 'All');
+    request.send(data, what);
+}
+
+function turnTheCogs()
+{
+    this[global_data.action](global_data.data);
+}
+
+function login()
+{
+    let login_input = $('.login-area input');
+    let data = getData(login_input);
+
+    load_data(data, 'auth', 'login');
+}
+
+function logout()
+{
+    load_data([], 'auth', 'logout');
+}
+
 function check_user()
 {
     let user = global_data.user;
     if (user.authenticated) {
         user_settings(user);
+        $(".login-field").addClass('d-none');
     }
 }
 
@@ -36,6 +91,21 @@ function user_settings(user)
 
     let side_menu = $("#side-menu");
     $(side_menu).removeClass('d-none')
+}
+
+
+function revert_user()
+{
+    let user_element = $("#user-field");
+    $(user_element).text('');
+    $(user_element).addClass('d-none');
+
+    let login = $("#login-link");
+    $(login).text('Login');
+    $(login).attr('href', '/login');
+
+    let side_menu = $("#side-menu");
+    $(side_menu).addClass('d-none')
 }
 
 function create(name) {
@@ -70,47 +140,51 @@ function build_button(value) {
     $(btn).text(value);
     $(btn).attr('type', 'button');
     $(btn).attr('onclick', 'open_record(' +
-        '$(this).closest("tr").find("input[type=hidden]"), ' +
-        '$(this).closest("table").find("th"), ' +
-        '$(this).closest(".table-results").find("input[name=table]")' +
+            '$(this).closest("input[name=record]"), ' +
+            '$(this).closest("table").find("th"), ' +
+            '$(this).closest(".table-default").find("input[name=table]")' +
         ')');
     $(btn).addClass('btn');
 
     return btn;
 }
 
-function put_into_table(attr, content) {
-    let table = $(".table-default").clone();
-    let class_name = 'table-' + attr.value;
+function fill_list()
+{
+    let data = global_data.data;
+    let headers = Object.keys(data[0]);
+    let what = data.what;
+    delete data.what;
 
-    $(table).removeClass("table-default");
-    $(table).addClass(class_name);
-    $(table).find(".table-header").text(attr.header);
+    headers.shift();
+    headers.forEach(function (value, key) {
+        headers[key] = table_headers[value];
+    });
+
+    put_into_table(data, headers, what)
+}
+
+function put_into_table(content, headerValues, selector) {
+    let table = $(".table-default");
+
+    if ($(table).hasClass("d-none")) $(table).removeClass("d-none");
+    let head = create('h5');
+    $(head).text(selectors[selector].header);
+    $(table).html(head);
+
+    let data_table = create('table');
+    $(table).append(data_table);
+    data_table = $(data_table).DataTable({columns: headerValues});
 
     for (let record of Object.values(content)) {
-        let row = create('tr');
+        console.log(decoder.decode(encoder.encode(record.beschreibung)));
+        let data = record.toString();
+        let input = build_input(data, 'record', 'hidden');
+        // record['action'] = build_button(record['action']);
 
-        for (let data of Object.keys(record)) {
-            let input = build_input(data, record[data], 'hidden');
-
-            let cell = create('td');
-            if (data === 'action') {
-                $(cell).html(build_button(record[data]));
-                row.append(cell);
-                continue;
-            }
-            data = record[data];
-
-            $(cell).text(data);
-            row.append(input);
-            row.append(cell);
-        }
-        $(table).find(".table-results").append(row);
+        data_table.row.add(record).draw();
     }
-    $(table).find(".table-results").append(build_input('table', attr.value, 'hidden'));
-
-    $("#body").html(table);
-    $(table).show();
+    $(table).append(build_input('table', selectors[selector], 'hidden'));
 }
 
 function open_record(data, label, table) {
@@ -152,6 +226,11 @@ function build_labels(data, targets)
 
 function modal(header, content) {
     let modal = $(".modal").clone();
+
+    // $(modal).draggable({
+    //     handle: ".modal-header"
+    // });
+
     $(modal).find(".modal-header h5").text(header);
     $(modal).find(".modal-body").html(content);
 
@@ -163,37 +242,44 @@ function modal(header, content) {
     });
 }
 
+function error(data)
+{
+    modal(data.title, data.message);
+}
+
 $(document).ready(function() {
     init();
 
-    $('#data-table').DataTable( {
-        data: {},
-        columns: [
-            {
-                title: "Name",
-                data: "name",
-            },
-            { title: "Adresse",data: "name", },
-            { title: "Datum", data: "date", },
-            { title: "Absender", data: "sender", },
-            { title: "Empfänger", data: "receiver", },
-            { title: "Aktion", data: "action", }
-        ]
-    } );
     $("#side-menu button").click(function() {
-
-        let dataSet = [{name:'chuck tester', adress: 'Kuster-Straße 11', date: '03.11.20', sender: 'Kühne+Nagel', receiver: 'IBM', action: 'Öffnen'}, {name: 'max tester', adress: 'Muster-Allee 14', date: '12.10.16', sender: 'Detlef Louis', receiver: 'BIM', action: 'Öffnen'}];
-        let topic = Object;
-        topic.header = $(this).text();
-        topic.value = $(this).val();
-        // put_into_table(topic, {0:{name:'chuck tester', adress: 'Kuster-Straße 11', date: '03.11.20', sender: 'Kühne+Nagel', receiver: 'IBM', action: 'Öffnen'}, 1:{name: 'max tester', adress: 'Muster-Allee 14', date: '12.10.16', sender: 'Detlef Louis', receiver: 'BIM', action: 'Öffnen'}});
-
-
+        let value = $(this).val();
+        // console.log('button: ' + value);
+        load_list([], value);
     });
 
-    $("");
+    $("[href$=login]").click(function(e) {
+        e.preventDefault();
+        $(".login-field").removeClass('d-none');
+    });
+
+    $("[href$=logout]").click(function(e) {
+        e.preventDefault();
+        logout();
+    });
+
+
+    // --- jquery login ---
+    $('.login-field input').ready(function () {
+        $(this).keyup(function (event) {
+            if (event.key === 'Enter') login();
+        });
+    });
 });
 
+// --- extensions ---
+
+// encoder/decoder - utf8 -- src:https://stackoverflow.com/questions/13356493/decode-utf-8-with-javascript#answer-40651656
+let encoder = new TextEncoder();
+let decoder = new TextDecoder('utf-8');
 
 // --- override - prototypes ---
 
