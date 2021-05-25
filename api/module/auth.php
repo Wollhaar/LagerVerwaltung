@@ -2,17 +2,21 @@
 
 class auth
 {
-    static $authenticated;
+    static $authenticated = false;
 
     public static function post_login($username, $password): array
     {
         $user = class_user::get($username);
         if (hashhash($password) === $user->password_hash) {
+            unset($user->password_hash);
+            self::$authenticated = true;
+            $user->authenticated = self::$authenticated;
+
             $session_data = array_merge(session::get(), array('user' => $user));
             session::set($session_data);
             session::save();
 
-            return $session_data;
+            return array_merge($session_data, array('action' => 'check_user', 'data' => array()));
         }
 
         return array(
@@ -24,7 +28,7 @@ class auth
 
     public static function get_logout(): array
     {
-        self::$authenticated = null;
+        self::$authenticated = false;
         session::destroy();
 
         return array('action' => 'revert_user', 'data' => array(), 'user' => array());
@@ -33,19 +37,20 @@ class auth
     public static function get_check(): array
     {
         $session_data = session::get();
-        self::$authenticated = $session_data['user']['authenticated'];
+        if (isset($session_data['user']))
+            self::$authenticated = $session_data['user']->authenticated;
 
-        if (self::$authenticated) {
-            return $session_data;
-        }
-        return array('action' => null, 'data' => array(), 'user' => array());
+        if (self::$authenticated)
+            return array_merge($session_data, array('action' => 'check_user', 'data' => array()));
+
+        return array('action' => 'check_user', 'data' => array(), 'user' => array('authenticated' => false));
     }
 }
 
 function hashhash(string $str, $boo = false): string
 {
     $hash = sha1($str, $boo);
-    if (max(count_chars($hash, 1) < 10)) $hash = hashhash($hash);
+    if (count_chars($hash, 1) < 10) $hash = hashhash($hash);
 
     return $hash;
 }

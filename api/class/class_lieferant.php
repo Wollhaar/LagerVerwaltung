@@ -53,7 +53,7 @@ class class_lieferant {
         return $res->fetch_assoc() ?? array();
     }
 
-    public static function putNew($data): bool
+    public static function new($data): bool
     {
         self::$db = db::get_db();
         $sql = "INSERT INTO lieferant (`name`, `adresse`) VALUES(?, ?)";
@@ -71,12 +71,22 @@ class class_lieferant {
     {
         self::$db = db::get_db();
 
+
+        $sql = "DESCRIBE lieferant";
+        $stmt = self::$db->query($sql);
+        $structure = $stmt->fetch_assoc();
+
         $sql = "UPDATE lieferant SET ";
         foreach ($data as $attr => $value) {
+            if (empty($structure['field'] === $attr)) {
+                unset($data[$attr]);
+                continue;
+            }
             $sql .= " $attr = ?";
         }
-        $sql .= " WHERE art_id < ?";
+        $sql .= " WHERE liefer_id < ?";
 
+        array_push($data, $id);
         $amnt = str_repeat('s', count($data));
 
         $stmt = self::$db->prepare($sql);

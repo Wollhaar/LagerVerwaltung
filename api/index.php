@@ -18,11 +18,19 @@ spl_autoload_register();
 session::get();
 $path = array_filter(explode('/', parse_url(isset($_SERVER['REQUEST_URI']) ? $_SERVER['PATH_INFO'] : '', PHP_URL_PATH)));
 if (!isset($path[1])) response::send(array("result" => "Methode fehlt"), 400);
+
 $class = $path[1];
 $function = $path[2];
 $method = strtolower($_SERVER['REQUEST_METHOD']);
+
 unset($path);
-$path[] = file_get_contents('php://input', true);
+parse_str(file_get_contents('php://input', true), $path);
+
+if (!empty($path['data']))
+    $path = array_merge($_GET, $path['data']);
+else {
+    $path = array($_GET);
+}
 if (is_file('module/' . $class . '.php')) {
     include 'module/' . $class . '.php';
     if (method_exists($class, $function)) {

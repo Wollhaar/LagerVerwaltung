@@ -30,14 +30,14 @@ function init() {
 
     default_link();
     check_session();
-    check_user();
 }
 
-function check_session()
+// script - requests --- BEGIN
+
+function getter(data, what, action)
 {
-    const request = new Request('session', 'get', 'check', {});
-    request.send();
-    global_data = request.get();
+    const request = new Request('get', action, data);
+    request.send([], what);
 }
 
 function load_data(data, what, action)
@@ -52,23 +52,44 @@ function load_list(data, what)
     request.send(data, what);
 }
 
+// script - requests --- END
+
 function turnTheCogs()
 {
     this[global_data.action](global_data.data);
 }
 
+function check_session()
+{
+    getter([], 'auth', 'check');
+}
+
 function login()
 {
-    let login_input = $('.login-area input');
-    let data = getData(login_input);
+    let login_input = $('.login-field input');
+    let data = getData(login_input, 'value');
 
     load_data(data, 'auth', 'login');
 }
 
 function logout()
 {
-    load_data([], 'auth', 'logout');
+    getter([], 'auth', 'logout');
+
 }
+
+// --- framework by: colleague --- BEGIN
+
+function save_data() {
+    let data = {};
+    $('.modal-body input').each(function(){
+        data[$(this).attr('name')] = $(this).val();
+    });
+    data = [data];
+    load_data(data, data[0].what, 'edit');
+}
+
+// --- framework --- END
 
 function check_user()
 {
@@ -90,7 +111,12 @@ function user_settings(user)
     $(login).attr('href', '/logout');
 
     let side_menu = $("#side-menu");
-    $(side_menu).removeClass('d-none')
+    $(side_menu).removeClass('d-none');
+
+    $("[href$=logout]").click(function(e) {
+        e.preventDefault();
+        logout();
+    });
 }
 
 
@@ -106,6 +132,8 @@ function revert_user()
 
     let side_menu = $("#side-menu");
     $(side_menu).addClass('d-none')
+
+    $("div[id^=DataTables]").remove();
 }
 
 function create(name) {
@@ -116,7 +144,7 @@ function default_link() {
     $("a#header-link").attr('href', default_page);
 }
 
-function build_label(text, target) {
+function build_label(text, target = '') {
     let label = create('label');
     $(label).attr('for', target);
     $(label).text(text);
@@ -135,26 +163,11 @@ function build_input(attr, value, type, class_names = '') {
     return input;
 }
 
-function build_button(value) {
-    let btn = create('button');
-    $(btn).text(value);
-    $(btn).attr('type', 'button');
-    $(btn).attr('onclick', 'open_record(' +
-            '$(this).closest("input[name=record]"), ' +
-            '$(this).closest("table").find("th"), ' +
-            '$(this).closest(".table-default").find("input[name=table]")' +
-        ')');
-    $(btn).addClass('btn');
-
-    return btn;
-}
-
 function fill_list()
 {
     let data = global_data.data;
     let headers = Object.keys(data[0]);
-    let what = data.what;
-    delete data.what;
+    let what = global_data.what;
 
     headers.shift();
     headers.forEach(function (value, key) {
@@ -177,29 +190,33 @@ function put_into_table(content, headerValues, selector) {
     data_table = $(data_table).DataTable({columns: headerValues});
 
     for (let record of Object.values(content)) {
-        console.log(decoder.decode(encoder.encode(record.beschreibung)));
-        let data = record.toString();
-        let input = build_input(data, 'record', 'hidden');
-        // record['action'] = build_button(record['action']);
+        let input2 = build_input('lieferant', JSON.stringify(record.lieferant), 'hidden');
+        record.lieferant = record.lieferant.name;
+
+        let input = build_input('record', JSON.stringify(record), 'hidden');
+        $(table).append(input);
+        $(table).append(input2);
 
         data_table.row.add(record).draw();
     }
     $(table).append(build_input('table', selectors[selector], 'hidden'));
+    activate_table();
 }
 
-function open_record(data, label, table) {
-    let fields = build_fields(data, 'text').mergeElements(
-            build_labels(
-                getData(label, 'innerText'),
-                getData(data, 'name')
-            )
-        );
-    fields.mergeElements(build_fields(data, 'hidden'), 1);
+function open_record(data) {
+    let hidden = build_input('id', data.id, 'hidden');
+    let hidden2 = build_input('what', global_data.what, 'hidden');
+    delete data.id;
 
-    let name = table[0].value;
-    fields = fields.build('div');
-    fields.push(table.clone());
-    modal('Bearbeite ' + name, fields);
+    let fields = build_form(data);
+    fields.append(hidden);
+    fields.append(hidden2);
+    modal('Bearbeite ' + global_data.what, fields);
+}
+
+function searchData(what)
+{
+    return $("input[type=hidden][value*=\"name\":\"" + what + "\"]");
 }
 
 function getData(data, what)
@@ -207,6 +224,42 @@ function getData(data, what)
     return $(data).map(function() {
         return this[what];
     }).get();
+}
+
+function getFrom(data, what)
+{
+    let obj = Object();
+    if (what === 'keys') {
+        for (let element of Object.keys(data)) {
+            obj[element.name] = element.value;
+        }
+    }
+    if (what === 'values') {
+        for (let element of Object.values(data)) {
+            obj[element.name] = element.value;
+        }
+    }
+    return obj;
+}
+
+function collectData(data)
+{
+    let obj = Object();
+    for (let element of Object.values(data)) {
+        obj[element.name] = element.value;
+    }
+    return obj;
+}
+
+function build_form(data)
+{
+    let div = create('form');
+    for (let keys of Object.keys(data)) {
+        if (keys  === 'lieferant') data[keys] = data[keys].name;
+        div.append(build_label(table_headers[keys].title));
+        div.append(build_input(keys, data[keys], 'text', 'form-control'));
+    }
+    return div;
 }
 
 function build_fields(data, type)
@@ -237,9 +290,7 @@ function modal(header, content) {
     $("body").append(modal);
     $(modal).show();
 
-    $(".modal button[class$=close]").click(function() {
-        $(this).closest(".modal").remove();
-    });
+    activate_modal();
 }
 
 function error(data)
@@ -252,18 +303,12 @@ $(document).ready(function() {
 
     $("#side-menu button").click(function() {
         let value = $(this).val();
-        // console.log('button: ' + value);
         load_list([], value);
     });
 
     $("[href$=login]").click(function(e) {
         e.preventDefault();
         $(".login-field").removeClass('d-none');
-    });
-
-    $("[href$=logout]").click(function(e) {
-        e.preventDefault();
-        logout();
     });
 
 
@@ -273,7 +318,26 @@ $(document).ready(function() {
             if (event.key === 'Enter') login();
         });
     });
+
 });
+
+function activate_table()
+{
+    $(".table-default table tr").click(function() {
+        getter({name: $(this).children().first().html()}, 'artikel', 'searchByName');
+    });
+}
+
+function activate_modal()
+{
+    $(".modal button.save").click(function() {
+        save_data();
+        $(this).closest(".modal").remove();
+    });
+    $(".modal button[class$=close]").click(function() {
+        $(this).closest(".modal").remove();
+    });
+}
 
 // --- extensions ---
 

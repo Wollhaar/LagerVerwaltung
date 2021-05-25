@@ -31,39 +31,30 @@ class class_transaktion
         self::$db = db::get_db();
 
         $sql = "SELECT * FROM artikel LIMIT 1";
-//        $sql = "UPDATE artikel SET preis = 4.79 WHERE art_id < 4";
-//        $sql = "INSERT INTO artikel (name, beschreibung, preis) VALUES('Pampers Sz:7', 'Windeln für Babys. Size: 7', 6.59)";
-//        $sql = "DESCRIBE artikel";
-
-//        $res = self::$db->query($sql);
-//        response::send($res);
         $stmt = self::$db->prepare($sql);
-        if ($stmt->execute()) response::send('success');
+        $stmt->execute();
         $res = $stmt->get_result();
 
         $ret = array();
-        response::send($res->fetch_assoc());
-//        while ($row = $res->fetch_assoc()) {
-//            $ret[] = new class_artikel($row);
-//            $ret[] = $row;
-//            echo json_encode($row);
-//        }
-        response::send($ret);
+        while ($row = $res->fetch_assoc()) {
+            $ret[] = new class_transaktion($row);
+        }
         return $ret;
     }
 
     public function registrieren() {}
 
-    public static function putNew($data): bool
+    public static function new($data): bool
     {
         self::$db = db::get_db();
-        $sql = "INSERT INTO artikel (`name`, `beschreibung`, `preis`) VALUES(?, ?, ?)";
+        $sql = "INSERT INTO transaktion (`bezeichnung`, `typ`, `liefer_id`, `lager_id`) VALUES(?, ?, ?, ?)";
 
         $stmt = self::$db->prepare($sql);
         $stmt->bind_param('sss',
-            $data['name'],
-            $data['beschreibung'],
-            $data['price'],
+            $data['bezeichnung'],
+            $data['typ'],
+            $data['liefer_id'],
+            $data['lager_id'],
         );
 
         return (bool) $stmt->execute();
@@ -72,11 +63,11 @@ class class_transaktion
     {
         self::$db = db::get_db();
 
-        $sql = "UPDATE artikel SET ";
+        $sql = "UPDATE transaktion SET ";
         foreach ($data as $attr => $value) {
             $sql .= " $attr = ?";
         }
-        $sql .= " WHERE art_id < ?";
+        $sql .= " WHERE trans_id < ?";
 
         $amnt = str_repeat('s', count($data));
 
