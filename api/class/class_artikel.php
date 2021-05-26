@@ -128,8 +128,7 @@ class class_artikel {
         $amnt = str_repeat('s', count($arr));
 
         $stmt = db::get_db()->prepare($sql);
-        $stmt->bind_param($amnt, ...$arr
-        );
+        $stmt->bind_param($amnt, ...$arr);
 
         return $stmt->execute();
     }

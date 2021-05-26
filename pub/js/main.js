@@ -10,7 +10,10 @@ const selectors = {
 
 const table_headers = {
         name:       { title: "Name", data: "name", },
-        adresse:     { title: "Adresse",data: "adresse", },
+        strasse:     { title: "Straße",data: "strasse", },
+        hausnummer:     { title: "Hausnummer",data: "hausnummer", },
+        PLZ:     { title: "PLZ",data: "PLZ", },
+        ort:     { title: "Ort",data: "ort", },
         datum:       { title: "Datum", data: "datum", },
         typ:     { title: "Typ", data: "typ", },
         beschreibung: { title: "Beschreibung", data: "beschreibung", },
@@ -26,8 +29,6 @@ const table_headers = {
 
 
 function init() {
-    // global_data = {user: {authenticated: true, first_name: 'David', last_name: 'Goraj'}}; // Test
-
     default_link();
     check_session();
 }
@@ -48,7 +49,7 @@ function load_data(data, what, action)
 
 function load_list(data, what)
 {
-    const request = new Request('get', 'All');
+    const request = new Request('get', 'all');
     request.send(data, what);
 }
 
@@ -190,12 +191,14 @@ function put_into_table(content, headerValues, selector) {
     data_table = $(data_table).DataTable({columns: headerValues});
 
     for (let record of Object.values(content)) {
-        let input2 = build_input('lieferant', JSON.stringify(record.lieferant), 'hidden');
-        record.lieferant = record.lieferant.name;
+        if (selector === 'artikel') {
+            let input2 = build_input('lieferant', JSON.stringify(record.lieferant), 'hidden');
+            record.lieferant = record.lieferant.name;
+            $(table).append(input2);
+        }
 
         let input = build_input('record', JSON.stringify(record), 'hidden');
         $(table).append(input);
-        $(table).append(input2);
 
         data_table.row.add(record).draw();
     }
@@ -251,6 +254,14 @@ function collectData(data)
     return obj;
 }
 
+function getByHeader(string)
+{
+    for (let key of Object.keys(selectors)) {
+        if (string === selectors[key].header)
+            return key;
+    }
+}
+
 function build_form(data)
 {
     let div = create('form');
@@ -298,6 +309,8 @@ function error(data)
     modal(data.title, data.message);
 }
 
+// script - jQuery --- BEGIN
+
 $(document).ready(function() {
     init();
 
@@ -324,7 +337,8 @@ $(document).ready(function() {
 function activate_table()
 {
     $(".table-default table tr").click(function() {
-        getter({name: $(this).children().first().html()}, 'artikel', 'searchByName');
+        let what = getByHeader($(this).closest(".table-default").find('h5').html());
+        getter({name: $(this).children().first().html()}, what, 'searchByName');
     });
 }
 

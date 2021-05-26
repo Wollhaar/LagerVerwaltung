@@ -30,7 +30,7 @@ class artikel {
 
     }
 
-    public static function get_All() {
+    public static function get_all() {
         return array('data' => class_artikel::getAll(), 'action' => 'fill_list', 'what' => self::class);
     }
 
@@ -41,6 +41,6 @@ class artikel {
             'action' => 'error',
             'what' => self::class
         );
-}
+    }
 }
 

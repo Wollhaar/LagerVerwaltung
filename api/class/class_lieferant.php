@@ -3,95 +3,105 @@
 class class_lieferant {
     public $id;
     public $name;
-    public $adresse;
-//    public $properties;
-
-
-    static $db;
-
+    public $strasse;
+    public $hausnummer;
+    public $PLZ;
+    public $ort;
 
     public function __construct($data = false)
     {
         if (!$data) return;
         $this->id = (int) $data['liefer_id'];
         $this->name = $data['name'];
-        $this->adresse = $data['adresse'];
-//        $this->adresse = array_combine(array_walk(explode(';', $data['adresse']), ''));
+        $this->strasse = $data['strasse'];
+        $this->hausnummer = $data['hausnummer'];
+        $this->PLZ = $data['PLZ'];
+        $this->ort = $data['ort'];
     }
 
     public static function getAll(): array
     {
-        self::$db = db::get_db();
+        $sql = "SELECT * FROM lieferant";
 
-        $sql = "SELECT * FROM lieferant INNER JOIN artikel";
-
-        $stmt = self::$db->prepare($sql);
+        $stmt = db::get_db()->prepare($sql);
         $stmt->execute();
         $res = $stmt->get_result();
 
         $ret = array();
-//        response::send($res->fetch_assoc());
         while ($row = $res->fetch_assoc()) {
-            $ret[] = $row;
+            $ret[] = new self($row);
         }
-//        response::send($ret);
         return $ret;
     }
 
     public static function getSingle(int $id): array
     {
-        self::$db = db::get_db();
-
         $sql = "SELECT * FROM lieferant WHERE liefer_id = ? LIMIT 1";
 
-        $stmt = self::$db->prepare($sql);
+        $stmt = db::get_db()->prepare($sql);
         $stmt->bind_param('s', $id);
         $stmt->execute();
         $res = $stmt->get_result();
-//        response::send($res);
 
         return $res->fetch_assoc() ?? array();
     }
 
     public static function new($data): bool
     {
-        self::$db = db::get_db();
         $sql = "INSERT INTO lieferant (`name`, `adresse`) VALUES(?, ?)";
 
-        $stmt = self::$db->prepare($sql);
+        $stmt = db::get_db()->prepare($sql);
         $stmt->bind_param('ss',
             $data['name'],
             $data['adresse'],
         );
 
-        return (bool) $stmt->execute();
+        return $stmt->execute();
     }
 
     public static function edit($id, $data): bool
     {
-        self::$db = db::get_db();
-
-
         $sql = "DESCRIBE lieferant";
-        $stmt = self::$db->query($sql);
-        $structure = $stmt->fetch_assoc();
-
+        $stmt = db::get_db()->query($sql);
         $sql = "UPDATE lieferant SET ";
-        foreach ($data as $attr => $value) {
-            if (empty($structure['field'] === $attr)) {
-                unset($data[$attr]);
-                continue;
+
+        $arr = array();
+        while ($attr = $stmt->fetch_assoc()) {
+            if (key_exists($attr['Field'], $data)) {
+                $sql .= " $attr[Field] = ?,";
+                array_push($arr, $data[$attr['Field']]);
             }
-            $sql .= " $attr = ?";
         }
-        $sql .= " WHERE liefer_id < ?";
+        $sql = rtrim($sql, ',');
+        $sql .= " WHERE liefer_id = ? LIMIT 1";
+        array_push($arr, $id);
+        $amnt = str_repeat('s', count($arr));
 
-        array_push($data, $id);
-        $amnt = str_repeat('s', count($data));
+        $stmt = db::get_db()->prepare($sql);
+        $stmt->bind_param($amnt, ...$arr);
 
-        $stmt = self::$db->prepare($sql);
-        $stmt->bind_param($amnt, $data);
+        return $stmt->execute();
+    }
 
-        return (bool) $stmt->execute();
+    public static function search(string $name): array
+    {
+        $sql = "SELECT * FROM lieferant WHERE `name` = ? LIMIT 1";
+
+        $stmt = db::get_db()->prepare($sql);
+        $stmt->bind_param('s', $name);
+        $stmt->execute();
+        $res = $stmt->get_result();
+
+        return $res->fetch_assoc() ?? array();
+    }
+
+    private function splitAdress()
+    {
+        $arr = explode(';', $this->adresse);
+        foreach ($arr as $str) {
+            $newVar = substr($str, 0, strpos($str, ':'));
+            $this->$newVar = substr($str, strpos($str, ':') + 1);
+        }
+        unset($this->adresse);
     }
 }
