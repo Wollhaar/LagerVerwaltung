@@ -16,14 +16,17 @@ const table_headers = {
         ort:     { title: "Ort",data: "ort", },
         datum:       { title: "Datum", data: "datum", },
         typ:     { title: "Typ", data: "typ", },
+        bezeichnung: { title: "Bezeichnung", data: "bezeichnung", },
         beschreibung: { title: "Beschreibung", data: "beschreibung", },
         preis:     { title: "Preis", data: "preis", },
         gate:     { title: "Tor", data: "gate", },
         sender:     { title: "Absender", data: "sender", },
         receiver:   { title: "Empfänger", data: "receiver", },
         anzahl:     { title: "Anzahl", data: "anzahl", },
+        artikelList:     { title: "Artikelliste", data: "artikelList", },
         action:     { title: "Aktion", data: "action", },
         lieferant:     { title: "Lieferant", data: "lieferant", },
+        lager:     { title: "Lager", data: "lager", },
     };
 
 
@@ -191,10 +194,22 @@ function put_into_table(content, headerValues, selector) {
     data_table = $(data_table).DataTable({columns: headerValues});
 
     for (let record of Object.values(content)) {
-        if (selector === 'artikel') {
+        if (selector === 'artikel' || selector === 'transaktion') {
             let input2 = build_input('lieferant', JSON.stringify(record.lieferant), 'hidden');
             record.lieferant = record.lieferant.name;
             $(table).append(input2);
+        }
+        if (selector === 'transaktion') {
+            data_table.button().add( 2, {
+                action: function() {
+                    get_list(this, JSON.stringify(record));
+                },
+                text: 'Artikelliste'
+            });
+
+            let input3 = build_input('lager', JSON.stringify(record.lager), 'hidden');
+            record.lager = record.lager.name;
+            $(table).append(input3);
         }
 
         let input = build_input('record', JSON.stringify(record), 'hidden');
@@ -215,6 +230,12 @@ function open_record(data) {
     fields.append(hidden);
     fields.append(hidden2);
     modal('Bearbeite ' + global_data.what, fields);
+}
+
+function open_list(btn)
+{
+    console.log(btn);
+    console.log(btn.value);
 }
 
 function searchData(what)
@@ -288,15 +309,14 @@ function build_labels(data, targets)
     }).get();
 }
 
-function modal(header, content) {
+function modal(header, content, id = '') {
     let modal = $(".modal").clone();
 
-    // $(modal).draggable({
-    //     handle: ".modal-header"
-    // });
-
+    modal.id = id;
     $(modal).find(".modal-header h5").text(header);
     $(modal).find(".modal-body").html(content);
+
+    $(modal).draggable();
 
     $("body").append(modal);
     $(modal).show();
@@ -306,7 +326,15 @@ function modal(header, content) {
 
 function error(data)
 {
-    modal(data.title, data.message);
+    modal(data.title, data.message, global_data.info);
+    $("#error_" + global_data.info).find(".modal-footer button.save").remove();
+}
+
+function info(header, content) {
+    modal(header, content, 'info_' + global_data.info);
+    let modal_window = $("#info_" + global_data.info);
+
+    $(modal_window).find(".modal-footer button.save").remove();
 }
 
 // script - jQuery --- BEGIN

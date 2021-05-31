@@ -3,35 +3,32 @@
 
 class class_transaktion
 {
-    public int $id;
+    public $id;
     public $bezeichnung;
     public $typ;
-    public $propelities;
     public $datum;
     public $artikelList;
-//    public class_lieferant $lieferant;
-//    public class_lager $lager;
-
-
-    static $db;
+    public $lieferant;
+    public $lager;
 
 
     public function __construct($data = false)
     {
+        $lieferant = new class_lieferant(class_lieferant::getSingle($data['liefer_id']));
+        $lager = new class_lager(class_lager::getSingle($data['lager_id']));
+
         $this->id = $data['trans_id'];
         $this->bezeichnung = $data['bezeichnung'];
         $this->typ = $data['typ'];
-        $this->datum = $data['date'];
-//        $this->anzahl = $data['name'];
-//        $this->properties = $data['name'];
+        $this->datum = $data['datum'];
+        $this->lieferant = $lieferant;
+        $this->lager = $lager;
     }
 
     public static function getAll(): array
     {
-        self::$db = db::get_db();
-
-        $sql = "SELECT * FROM artikel LIMIT 1";
-        $stmt = self::$db->prepare($sql);
+        $sql = "SELECT trans_id, bezeichnung, typ, datum, liefer_id, lager_id FROM transaktion";
+        $stmt = db::get_db()->prepare($sql);
         $stmt->execute();
         $res = $stmt->get_result();
 
@@ -46,33 +43,40 @@ class class_transaktion
 
     public static function new($data): bool
     {
-        self::$db = db::get_db();
         $sql = "INSERT INTO transaktion (`bezeichnung`, `typ`, `liefer_id`, `lager_id`) VALUES(?, ?, ?, ?)";
 
-        $stmt = self::$db->prepare($sql);
-        $stmt->bind_param('sss',
+        $stmt = db::get_db()->prepare($sql);
+        $stmt->bind_param('ssss',
             $data['bezeichnung'],
             $data['typ'],
             $data['liefer_id'],
             $data['lager_id'],
         );
 
-        return (bool) $stmt->execute();
+        return $stmt->execute();
     }
+
     public static function edit($id, $data): bool
     {
-        self::$db = db::get_db();
+        $sql = "DESCRIBE transaktion";
+        $stmt = db::get_db()->query($sql);
 
         $sql = "UPDATE transaktion SET ";
-        foreach ($data as $attr => $value) {
-            $sql .= " $attr = ?";
+        $arr = array();
+        while ($attr = $stmt->fetch_assoc()) {
+            if (key_exists($attr['Field'], $data)) {
+                $sql .= " $attr[Field] = ?,";
+                array_push($arr, $data[$attr['Field']]);
+            }
         }
-        $sql .= " WHERE trans_id < ?";
+        $sql = rtrim($sql, ',');
+        $sql .= " WHERE trans_id = ? LIMIT 1";
 
-        $amnt = str_repeat('s', count($data));
+        array_push($arr, $id);
+        $amnt = str_repeat('s', count($arr));
 
-        $stmt = self::$db->prepare($sql);
-        $stmt->bind_param($amnt, $data);
+        $stmt = db::get_db()->prepare($sql);
+        $stmt->bind_param($amnt, ...$arr);
 
         return (bool) $stmt->execute();
     }

@@ -3,12 +3,12 @@
 
 class lieferant
 {
-    public static function get_details($id) {
-        return array('data'=> new class_lieferant(class_lieferant::getSingle($id)), 'action' => '', 'what' => self::class);
-    }
-
     public static function get_all() {
         return array('data' => class_lieferant::getAll(), 'action' => 'fill_list', 'what' => self::class);
+    }
+
+    public static function get_details($id) {
+        return array('data'=> new class_lieferant(class_lieferant::getSingle($id)), 'action' => '', 'what' => self::class);
     }
 
     public static function post_edit($data) {

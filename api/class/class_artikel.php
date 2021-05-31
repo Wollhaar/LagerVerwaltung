@@ -124,6 +124,7 @@ class class_artikel {
         }
         $sql = rtrim($sql, ',');
         $sql .= " WHERE art_id = ? LIMIT 1";
+
         array_push($arr, $id);
         $amnt = str_repeat('s', count($arr));
 

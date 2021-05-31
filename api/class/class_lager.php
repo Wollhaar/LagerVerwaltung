@@ -1,75 +1,84 @@
 <?php
 
 class class_lager {
-    public int $id;
-    public $bezeichnung;
+    public $id;
+    public $name;
     //public $kapazitaet; // in prozent?
     public $gate; // als modul schnittstelle??? oder als Eingangs- und/oder Ausgangspunkt(Tor) für Waren
-//    public $properties;
-
-
-    static $db;
 
 
     public function __construct($data = false)
     {
-        $this->id = $data['art_id'];
+        if (!$data) return;
+
+        $this->id = $data['lager_id'];
         $this->name = $data['name'];
         $this->gate = $data['gate'];
     }
 
     public static function getAll(): array
     {
-        self::$db = db::get_db();
+        $sql = "SELECT * FROM lager";
 
-        $sql = "SELECT * FROM lager LEFT JOIN artikel ON lager.lager_id = artikel.art_id";
-
-        $stmt = self::$db->prepare($sql);
-        if ($stmt->execute()) ('success');
+        $stmt = db::get_db()->prepare($sql);
+        $stmt->execute();
         $res = $stmt->get_result();
 
         $ret = array();
-//        response::send($res->fetch_assoc());
         while ($row = $res->fetch_assoc()) {
-            $ret[] = new class_artikel($row);
-            $ret[] = $row;
-            echo json_encode($row);
+            $ret[] = new class_lager($row);
         }
-//        response::send($ret);
         return $ret;
+    }
+
+    public static function getSingle($id): array
+    {
+        $sql = "SELECT * FROM lager WHERE lager_id = ? LIMIT 1";
+
+        $stmt = db::get_db()->prepare($sql);
+        $stmt->bind_param('s', $id);
+        $stmt->execute();
+
+        return $stmt->get_result()->fetch_assoc() ?? array();
     }
 
     public function annahme($data): bool
     {
-        self::$db = db::get_db();
         $sql = "INSERT INTO lager (`name`, `bezeichnung`, `gate`) VALUES(?, ?, ?)";
 
-        $stmt = self::$db->prepare($sql);
+        $stmt = db::get_db()->prepare($sql);
         $stmt->bind_param('sss',
             $data['name'],
             $data['beschreibung'],
             $data['preis'],
         );
 
-        return (bool) $stmt->execute();
+        return $stmt->execute();
     }
 
     public static function edit($id, $data): bool
     {
-        self::$db = db::get_db();
+        $sql = "DESCRIBE artikel";
+        $stmt = db::get_db()->query($sql);
+        $sql = "UPDATE lager SET ";
 
-        $sql = "UPDATE artikel SET ";
-        foreach ($data as $attr => $value) {
-            $sql .= " $attr = ?";
+        $arr = array();
+        while ($attr = $stmt->fetch_assoc()) {
+            if (key_exists($attr['Field'], $data)) {
+                $sql .= " $attr[Field] = ?,";
+                array_push($arr, $data[$attr['Field']]);
+            }
         }
-        $sql .= " WHERE art_id = ? LIMIT 1";
+        $sql = rtrim($sql, ',');
+        $sql .= " WHERE lager_id = ? LIMIT 1";
 
-        $amnt = str_repeat('s', count($data));
+        array_push($arr, $id);
+        $amnt = str_repeat('s', count($arr));
 
-        $stmt = self::$db->prepare($sql);
-        $stmt->bind_param($amnt, $data);
+        $stmt = db::get_db()->prepare($sql);
+        $stmt->bind_param($amnt, ...$arr);
 
-        return (bool) $stmt->execute();
+        return $stmt->execute();
     }
 
     public function inventur() {}
